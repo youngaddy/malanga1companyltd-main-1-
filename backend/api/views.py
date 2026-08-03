@@ -25,6 +25,12 @@ def gallery_list(request):
                 'caption': f"{prop.title} — {prop.description}",
                 'tall': True,
             })
+        elif prop.image:
+            items.append({
+                'src': prop.image,
+                'caption': f"{prop.title} — {prop.description}",
+                'tall': True,
+            })
         for img in prop.gallery_images.all():
             if img.image:
                 items.append({

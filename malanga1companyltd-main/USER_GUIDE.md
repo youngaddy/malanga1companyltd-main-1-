@@ -96,12 +96,18 @@ python manage.py runserver
 
 Open **http://127.0.0.1:8000/admin/** in your browser.
 
-**Login credentials** — create a superuser first:
+### Admin Login
 
-```bash
-python manage.py createsuperuser
-# Follow the prompts to set username, email, and password
-```
+Use these credentials to sign in:
+
+| Field | Value |
+|---|---|
+| **Username** | `malanga` |
+| **Password** | `malanga@2026.admotions` |
+
+> **Important:** Change your password after your first login. Go to the admin panel → click **Change password** (top-right) or use `python manage.py changepassword malanga`.
+>
+> To create additional admin users later, run `python manage.py createsuperuser`.
 
 ### 4. Add sample data (optional)
 
@@ -109,7 +115,7 @@ python manage.py createsuperuser
 python seed.py
 ```
 
-This creates 6 sample properties: 3 land plots, 1 rental, and 2 houses.
+This creates 6 sample properties, 4 stats counters, and 4 testimonials.
 
 ---
 

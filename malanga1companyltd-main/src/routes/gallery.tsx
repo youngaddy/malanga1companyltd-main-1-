@@ -35,15 +35,19 @@ const fallbackItems: GalleryItem[] = [
 
 async function fetchGalleryItems(): Promise<GalleryItem[]> {
   const baseApi = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
+  let apiItems: GalleryItem[] = [];
   try {
     const res = await fetch(`${baseApi}/gallery/`);
-    if (!res.ok) throw new Error("Failed to fetch gallery");
-    const data = await res.json();
-    if (Array.isArray(data) && data.length > 0) return data;
-    return fallbackItems;
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) apiItems = data;
+    }
   } catch {
-    return fallbackItems;
+    // Backend offline — use sample images only
   }
+  const fallbackFilenames = new Set(fallbackItems.map((i) => i.src.split("/").pop()));
+  const uniqueApiItems = apiItems.filter((i) => !fallbackFilenames.has(i.src.split("/").pop()));
+  return [...fallbackItems, ...uniqueApiItems];
 }
 
 export const Route = createFileRoute("/gallery")({
