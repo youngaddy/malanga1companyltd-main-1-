@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Property, PropertyImage, ContactMessage
+from .models import Property, PropertyImage, ContactMessage, Testimonial, Stat
 
 class PropertyImageSerializer(serializers.ModelSerializer):
     url = serializers.SerializerMethodField()
@@ -52,3 +52,16 @@ class ContactMessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContactMessage
         fields = '__all__'
+
+class TestimonialSerializer(serializers.ModelSerializer):
+    rating = serializers.IntegerField(min_value=1, max_value=5, required=False)
+
+    class Meta:
+        model = Testimonial
+        fields = ['id', 'name', 'role', 'quote', 'rating', 'created_at']
+        read_only_fields = ['id', 'created_at']
+
+class StatSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Stat
+        fields = ['id', 'label', 'value', 'suffix']

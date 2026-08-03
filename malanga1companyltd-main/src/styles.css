@@ -1,0 +1,181 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Malanga 1 — Sahara Glass Fusion design system.
+ * Warm sand background, clay accent, deep earth text, glassmorphic panels.
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-clay: var(--clay);
+  --color-earth: var(--earth);
+  --color-earth-foreground: var(--earth-foreground);
+  --color-sand: var(--sand);
+  --color-glass: var(--glass);
+  --color-glass-border: var(--glass-border);
+  --font-display: "Playfair Display", serif;
+  --font-sans: "Outfit", sans-serif;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:root {
+  --radius: 1rem;
+  /* soft mint background */
+  --background: oklch(0.98 0.03 165);
+  --foreground: oklch(0.28 0.08 230);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.28 0.08 230);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.28 0.08 230);
+  /* Navy Blue primary, Red accent, Clean white background */
+  --primary: oklch(0.2 0.05 250);
+  --primary-foreground: oklch(0.98 0 0);
+  --secondary: oklch(0.95 0 0);
+  --secondary-foreground: oklch(0.2 0.05 250);
+  --muted: oklch(0.95 0 0);
+  --muted-foreground: oklch(0.5 0 0);
+  --accent: oklch(0.9 0 0);
+  --accent-foreground: oklch(0.2 0 0);
+  --destructive: oklch(0.57 0.22 25);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.9 0 0);
+  --input: oklch(0.9 0 0);
+  --ring: oklch(0.57 0.22 25);
+  /* clay -> Red accent, earth -> Navy Blue, sand -> very light gray */
+  --clay: oklch(0.57 0.22 25);
+  --earth: oklch(0.2 0.05 250);
+  --earth-foreground: oklch(0.98 0 0);
+  --sand: oklch(0.98 0 0);
+  --glass: oklch(1 0 0 / 65%);
+  --glass-border: oklch(1 0 0 / 60%);
+}
+
+.dark {
+  --background: oklch(0.18 0.03 235);
+  --foreground: oklch(0.95 0.02 165);
+  --card: oklch(0.24 0.04 230);
+  --card-foreground: oklch(0.95 0.02 165);
+  --popover: oklch(0.24 0.04 230);
+  --popover-foreground: oklch(0.95 0.02 165);
+  --primary: oklch(0.3 0.05 250);
+  --primary-foreground: oklch(0.98 0 0);
+  --secondary: oklch(0.2 0 0);
+  --secondary-foreground: oklch(0.98 0 0);
+  --muted: oklch(0.2 0 0);
+  --muted-foreground: oklch(0.7 0 0);
+  --accent: oklch(0.3 0 0);
+  --accent-foreground: oklch(0.98 0 0);
+  --border: oklch(0.3 0 0);
+  --input: oklch(0.3 0 0);
+  --ring: oklch(0.57 0.22 25);
+  --clay: oklch(0.57 0.22 25);
+  --earth: oklch(0.1 0.03 250);
+  --earth-foreground: oklch(0.98 0 0);
+  --sand: oklch(0.12 0.03 250);
+  --glass: oklch(0.1 0 0 / 55%);
+  --glass-border: oklch(0.6 0 0 / 30%);
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+@keyframes glow-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+@utility glass-panel {
+  background: var(--glass);
+  backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid var(--glass-border);
+}
+
+@utility glass-strong {
+  background: oklch(1 0 0 / 60%);
+  backdrop-filter: blur(28px) saturate(150%);
+  border: 1px solid var(--glass-border);
+}
+
+@utility animate-fade-up {
+  animation: fade-up 0.8s var(--ease-out-expo) both;
+}
+
+@utility animate-float-slow {
+  animation: float-slow 6s ease-in-out infinite;
+}
+
+@utility animate-glow-pulse {
+  animation: glow-pulse 5s ease-in-out infinite;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--clay) 20%, transparent);
+  }
+}

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Property, PropertyImage, ContactMessage
+from .models import Property, PropertyImage, ContactMessage, Testimonial, Stat
 
 class PropertyImageInline(admin.TabularInline):
     model = PropertyImage
@@ -44,3 +44,17 @@ class ContactMessageAdmin(admin.ModelAdmin):
     search_fields = ('name', 'phone', 'email', 'message')
     readonly_fields = ('created_at',)
     ordering = ('-created_at',)
+
+@admin.register(Testimonial)
+class TestimonialAdmin(admin.ModelAdmin):
+    list_display = ('name', 'role', 'rating', 'is_approved', 'created_at')
+    list_filter = ('is_approved', 'rating')
+    search_fields = ('name', 'role', 'quote')
+    list_editable = ('is_approved', 'rating')
+    ordering = ('-created_at',)
+
+@admin.register(Stat)
+class StatAdmin(admin.ModelAdmin):
+    list_display = ('label', 'value', 'suffix', 'order')
+    list_editable = ('value', 'suffix', 'order')
+    ordering = ('order',)

@@ -39,3 +39,26 @@ class ContactMessage(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.phone}"
+
+class Testimonial(models.Model):
+    name = models.CharField(max_length=255)
+    role = models.CharField(max_length=255, blank=True, null=True)
+    quote = models.TextField()
+    rating = models.PositiveSmallIntegerField(default=5)
+    is_approved = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name} - {self.role or 'Client'}"
+
+class Stat(models.Model):
+    label = models.CharField(max_length=100)
+    value = models.PositiveIntegerField()
+    suffix = models.CharField(max_length=10, default='+', blank=True)
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return f"{self.label} ({self.value}{self.suffix})"
