@@ -1,12 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Reveal } from "@/components/Reveal";
+import { CountUp } from "@/components/CountUp";
 import { Phone, MessageCircle, Mail } from "lucide-react";
 import aboutTeam from "@/assets/team_new.jpg";
 import founderAsset from "@/assets/founder_new.jpg";
 import { PHONE_DISPLAY, PHONE_TEL, EMAIL, ADDRESS, whatsappUrl } from "@/lib/contact";
+import { fetchStats, type Stat } from "@/data/site-content";
 import { canonical, DEFAULT_OG_IMAGE, organizationJsonLd, breadcrumbJsonLd } from "@/lib/seo";
 
 export const Route = createFileRoute("/about")({
+  loader: async () => {
+    const stats = await fetchStats();
+    return { stats };
+  },
   head: () => ({
     meta: [
       { title: "About Malanga 1 | Trusted Real Estate Developer in Tamale" },
@@ -43,13 +49,6 @@ export const Route = createFileRoute("/about")({
   component: AboutPage,
 });
 
-const stats = [
-  { value: "150+", label: "Plots Sold" },
-  { value: "40+", label: "Homes Delivered" },
-  { value: "10+", label: "Estate Projects" },
-  { value: "100%", label: "Verified Titles" },
-];
-
 const values = [
   {
     title: "Transparency",
@@ -66,6 +65,7 @@ const values = [
 ];
 
 function AboutPage() {
+  const { stats } = Route.useLoaderData() as { stats: Stat[] };
   return (
     <main className="px-4 pt-28 pb-24 sm:px-6 md:pt-40 md:pb-32">
       <div className="mx-auto max-w-7xl">
@@ -181,14 +181,16 @@ function AboutPage() {
         <div className="mb-20 grid grid-cols-2 gap-4 sm:gap-6 md:mb-24 lg:grid-cols-4">
           {stats.map((s, i) => (
             <Reveal
-              key={s.label}
+              key={s.id}
               delay={i * 0.08}
               className="glass-panel rounded-2xl p-5 text-center sm:rounded-3xl sm:p-8"
             >
               <p className="mb-2 font-display text-3xl font-bold text-clay sm:text-4xl md:text-5xl">
-                {s.value}
+                <CountUp to={s.value} suffix={s.suffix} />
               </p>
-              <p className="text-xs font-medium tracking-widest uppercase opacity-60 sm:text-sm">{s.label}</p>
+              <p className="text-xs font-medium tracking-widest uppercase opacity-60 sm:text-sm">
+                {s.label}
+              </p>
             </Reveal>
           ))}
         </div>

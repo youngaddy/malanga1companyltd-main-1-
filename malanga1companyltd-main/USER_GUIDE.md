@@ -179,7 +179,7 @@ The image will automatically appear on the Gallery page.
 
 ## Managing Stats Counters
 
-The animated counters on the home page (e.g. "150+ Plots Sold") are stored in the backend, so you can update them **without touching any code**.
+The animated counters on the **home page and the About page** (e.g. "150+ Plots Sold") are stored in the backend and shared from the same source, so you can update them **without touching any code** — and both pages change together.
 
 ### Editing a counter
 
@@ -194,7 +194,7 @@ The animated counters on the home page (e.g. "150+ Plots Sold") are stored in th
 
 1. Go to **Django Admin** → **Stats** → **Add Stat**
 2. Enter a **Label** (e.g. "Communities"), a **Value** (e.g. `5`), a **Suffix** (e.g. `+`), and an **Order**
-3. Click **Save** — it appears on the home page immediately
+3. Click **Save** — it appears on the home page and About page immediately
 
 ### Removing a counter
 

@@ -151,7 +151,7 @@ TanStack Router uses **file-based routing** in `src/routes/`:
 | `properties.$id.tsx` | `/properties/$id` | `PropertyDetail` | Gallery, specs, features, enquiry form, related properties |
 | `services.tsx` | `/services` | `ServicesPage` | 3 category cards with sub-items, process steps |
 | `gallery.tsx` | `/gallery` | `GalleryPage` | Masonry grid with lightbox |
-| `about.tsx` | `/about` | `AboutPage` | Company story, founder, stats, values |
+| `about.tsx` | `/about` | `AboutPage` | Company story, founder, backend stats, values |
 | `contact.tsx` | `/contact` | `ContactPage` | Contact form, details card, Google Maps embed |
 | `sitemap[.]xml.ts` | `/sitemap.xml` | — | Server-generated XML sitemap |
 
@@ -224,7 +224,7 @@ All API calls use `import.meta.env.VITE_API_URL` (default: `http://127.0.0.1:800
 | `{VITE_API_URL}/gallery/` | GET | `gallery.tsx` | Returns gallery images |
 | `{VITE_API_URL}/testimonials/` | GET | `data/site-content.ts` | Returns approved reviews |
 | `{VITE_API_URL}/testimonials/` | POST | `components/ReviewForm.tsx` | Submits a new review (held for approval) |
-| `{VITE_API_URL}/stats/` | GET | `data/site-content.ts` | Returns home page counters |
+| `{VITE_API_URL}/stats/` | GET | `data/site-content.ts` | Returns counters (home + About pages) |
 
 **Data transformation:** `mapDjangoProperty()` in `data/properties.ts` converts Django API response shape to the frontend `Property` interface.
 
@@ -304,7 +304,7 @@ class Testimonial(models.Model):
     created_at  = DateTimeField(auto_now_add=True)
 ```
 
-**Stat** (home page counters)
+**Stat** (counters shared by home + About pages)
 ```python
 class Stat(models.Model):
     label  = CharField(max_length=100)   # e.g. "Plots Sold"
