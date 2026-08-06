@@ -3,7 +3,11 @@ services:
     name: malanga1-backend
     runtime: python
     rootDir: backend
-    plan: free
+    plan: starter
+    disk:
+      name: media
+      mountPath: /var/lib/backend/media
+      sizeGB: 1
     buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
     startCommand: python manage.py migrate --noinput && gunicorn core.wsgi:application --bind 0.0.0.0:$PORT
     envVars:
@@ -13,12 +17,14 @@ services:
         value: "False"
       - key: DJANGO_ALLOWED_HOSTS
         value: "*"
+      - key: DJANGO_MEDIA_ROOT
+        value: /var/lib/backend/media
       - key: DATABASE_URL
         fromDatabase:
           name: malanga1-db
           property: connectionString
 databases:
   - name: malanga1-db
-    plan: free
+    plan: basic-256mb
     databaseName: malanga1
     user: malanga1
