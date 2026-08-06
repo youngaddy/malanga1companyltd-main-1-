@@ -21,6 +21,18 @@ services:
         fromDatabase:
           name: malanga1-db
           property: connectionString
+  - type: web
+    name: malanga1-frontend
+    runtime: node
+    rootDir: malanga1companyltd-main
+    plan: free
+    buildCommand: npm ci && npm run build
+    startCommand: node server.mjs
+    envVars:
+      - key: VITE_API_URL
+        value: https://malanga1-backend.onrender.com/api
+      - key: NODE_VERSION
+        value: "22"
 databases:
   - name: malanga1-db
     plan: free
