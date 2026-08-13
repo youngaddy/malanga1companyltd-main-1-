@@ -221,7 +221,7 @@ const BASE_API = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
 const API_URL = `${BASE_API}/properties/`;
 
 function mapDjangoProperty(p: any): Property {
-  const primaryImage = resolveAssetUrl(p.image);
+  const primaryImage = resolveAssetUrl(p.display_image || p.image);
   let gallery: string[] = [];
 
   if (Array.isArray(p.gallery) && p.gallery.length > 0) {
