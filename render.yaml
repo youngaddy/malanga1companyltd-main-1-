@@ -32,7 +32,7 @@ services:
     name: malanga1-frontend
     rootDir: malanga1companyltd-main
     buildCommand: npm run build
-    staticPublishPath: .output/public
+    staticPublishPath: dist/client
     envVars:
       - key: VITE_API_URL
         value: https://malanga1-backend.onrender.com/api

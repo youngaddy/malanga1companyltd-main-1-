@@ -2,12 +2,18 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
-import { nitro } from "nitro/vite";
 
 export default defineConfig({
   plugins: [
-    tanstackStart(),
-    nitro({ preset: "static" }),
+    tanstackStart({
+      prerender: {
+        enabled: true,
+        crawlLinks: true,
+        autoStaticPathsDiscovery: true,
+        autoSubfolderIndex: true,
+        failOnError: true,
+      },
+    }),
     react(),
     tailwindcss(),
   ],
