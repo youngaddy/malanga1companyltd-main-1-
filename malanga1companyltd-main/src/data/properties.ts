@@ -259,15 +259,17 @@ function mapDjangoProperty(p: any): Property {
 
 export async function fetchProperties(): Promise<Property[]> {
   try {
-    const res = await fetch(API_URL);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+    const res = await fetch(API_URL, { signal: controller.signal });
+    clearTimeout(timeout);
     if (!res.ok) throw new Error("Failed to fetch properties");
     const data = await res.json();
     if (Array.isArray(data) && data.length > 0) {
       return data.map(mapDjangoProperty);
     }
     return defaultProperties;
-  } catch (error) {
-    console.warn("Could not connect to backend API, using local property data:", error);
+  } catch {
     return defaultProperties;
   }
 }

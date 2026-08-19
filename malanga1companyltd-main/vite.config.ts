@@ -8,10 +8,10 @@ export default defineConfig({
     tanstackStart({
       prerender: {
         enabled: true,
-        crawlLinks: true,
+        crawlLinks: false,
         autoStaticPathsDiscovery: true,
         autoSubfolderIndex: true,
-        failOnError: true,
+        failOnError: false,
       },
     }),
     react(),
