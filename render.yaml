@@ -21,18 +21,22 @@ services:
         fromDatabase:
           name: malanga1-db
           property: connectionString
-  - type: web
+      - key: CLOUDINARY_CLOUD_NAME
+        value: "j1k7ai8b"
+      - key: CLOUDINARY_API_KEY
+        value: "828539382883754"
+      - key: CLOUDINARY_API_SECRET
+        value: "N9Zw42Ad4xSbwt8x6he2iP2YwLM"
+
+  - type: static_site
     name: malanga1-frontend
-    runtime: node
     rootDir: malanga1companyltd-main
-    plan: free
-    buildCommand: npm ci && npm run build
-    startCommand: node server.mjs
+    buildCommand: npm run build
+    staticPublishPath: .output/public
     envVars:
       - key: VITE_API_URL
         value: https://malanga1-backend.onrender.com/api
-      - key: NODE_VERSION
-        value: "22"
+
 databases:
   - name: malanga1-db
     plan: free
