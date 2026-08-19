@@ -156,7 +156,7 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 STORAGES = {
     'default': {
-        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+        'BACKEND': 'cloudinary_storage.backends.MediaCloudinaryStorage' if os.environ.get('CLOUDINARY_CLOUD_NAME') else 'django.core.files.storage.FileSystemStorage',
     },
     'staticfiles': {
         'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
@@ -165,10 +165,6 @@ STORAGES = {
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = Path(os.environ.get('DJANGO_MEDIA_ROOT', str(BASE_DIR / 'media')))
-
-# Uploaded files go to Cloudinary (persists across redeploys/restarts)
-if os.environ.get('CLOUDINARY_CLOUD_NAME'):
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.backends.MediaCloudinaryStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
