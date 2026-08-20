@@ -165,11 +165,13 @@ def admin_dashboard(request: Request, db: Session = Depends(get_db)):
     testimonials = db.query(Testimonial).order_by(Testimonial.created_at.desc()).all()
     contacts = db.query(ContactMessage).order_by(ContactMessage.created_at.desc()).all()
     stats = db.query(Stat).order_by(Stat.order).all()
+    gallery_images = db.query(PropertyImage).all()
     return templates.TemplateResponse(request, "admin.html", {
         "properties": properties,
         "testimonials": testimonials,
         "contacts": contacts,
         "stats": stats,
+        "gallery_images": gallery_images,
     })
 
 
@@ -246,5 +248,27 @@ def admin_delete_stat(stat_id: int, db: Session = Depends(get_db)):
     s = db.query(Stat).filter(Stat.id == stat_id).first()
     if s:
         db.delete(s)
+        db.commit()
+    return RedirectResponse("/admin/", status_code=303)
+
+
+@app.post("/admin/gallery/add")
+def admin_add_gallery_image(
+    property_id: int = Form(...),
+    image_url: str = Form(...),
+    caption: str = Form(""),
+    db: Session = Depends(get_db),
+):
+    img = PropertyImage(property_id=property_id, image_url=image_url, caption=caption or None)
+    db.add(img)
+    db.commit()
+    return RedirectResponse("/admin/", status_code=303)
+
+
+@app.post("/admin/gallery/{image_id}/delete")
+def admin_delete_gallery_image(image_id: int, db: Session = Depends(get_db)):
+    img = db.query(PropertyImage).filter(PropertyImage.id == image_id).first()
+    if img:
+        db.delete(img)
         db.commit()
     return RedirectResponse("/admin/", status_code=303)

@@ -11,7 +11,7 @@
         .header h1 { font-size: 1.4rem; }
         .header a { color: #ccc; text-decoration: none; }
         .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
-        .stats-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
+        .stats-bar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin-bottom: 2rem; }
         .stat-card { background: white; border-radius: 12px; padding: 1.5rem; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .stat-card h3 { font-size: 2rem; color: #1a1a2e; }
         .stat-card p { color: #666; margin-top: 0.5rem; }
@@ -70,10 +70,15 @@
                 <h3>{{ stats|length }}</h3>
                 <p>Stats</p>
             </div>
+            <div class="stat-card">
+                <h3>{{ gallery_images|length }}</h3>
+                <p>Gallery Images</p>
+            </div>
         </div>
 
         <div class="tabs">
             <div class="tab active" onclick="showTab('properties')">Properties</div>
+            <div class="tab" onclick="showTab('gallery')">Gallery</div>
             <div class="tab" onclick="showTab('testimonials')">Testimonials</div>
             <div class="tab" onclick="showTab('contacts')">Messages</div>
             <div class="tab" onclick="showTab('stats')">Stats</div>
@@ -126,6 +131,55 @@
                             <div class="form-group"><label>Description</label><textarea name="description" required></textarea></div>
                         </div>
                         <button class="btn btn-approve" type="submit">Add Property</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gallery -->
+        <div id="tab-gallery" class="tab-content">
+            <div class="section">
+                <h2>Gallery Images</h2>
+                {% if gallery_images %}
+                <table>
+                    <thead><tr><th>ID</th><th>Property</th><th>Image URL</th><th>Caption</th><th>Actions</th></tr></thead>
+                    <tbody>
+                    {% for g in gallery_images %}
+                    <tr>
+                        <td>{{ g.id }}</td>
+                        <td>{{ g.property.title }}</td>
+                        <td style="max-width:250px;overflow:hidden;text-overflow:ellipsis">{{ g.image_url }}</td>
+                        <td>{{ g.caption or '—' }}</td>
+                        <td>
+                            <form class="inline" method="post" action="/admin/gallery/{{ g.id }}/delete" onsubmit="return confirm('Delete this image?')">
+                                <button class="btn btn-delete btn-small" type="submit">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="empty">No gallery images yet.</p>
+                {% endif %}
+
+                <div class="add-form">
+                    <h3>Add Gallery Image</h3>
+                    <form method="post" action="/admin/gallery/add">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Property</label>
+                                <select name="property_id" required>
+                                    <option value="">Select property...</option>
+                                    {% for p in properties %}
+                                    <option value="{{ p.id }}">{{ p.title }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group"><label>Image URL</label><input name="image_url" required placeholder="https://..."></div>
+                            <div class="form-group"><label>Caption</label><input name="caption"></div>
+                        </div>
+                        <button class="btn btn-approve" type="submit">Add Image</button>
                     </form>
                 </div>
             </div>
