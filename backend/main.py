@@ -165,8 +165,7 @@ def admin_dashboard(request: Request, db: Session = Depends(get_db)):
     testimonials = db.query(Testimonial).order_by(Testimonial.created_at.desc()).all()
     contacts = db.query(ContactMessage).order_by(ContactMessage.created_at.desc()).all()
     stats = db.query(Stat).order_by(Stat.order).all()
-    return templates.TemplateResponse("admin.html", {
-        "request": request,
+    return templates.TemplateResponse(request, "admin.html", {
         "properties": properties,
         "testimonials": testimonials,
         "contacts": contacts,
