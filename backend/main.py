@@ -1,4 +1,5 @@
 import os
+import json
 from fastapi import FastAPI, Depends, Request, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -140,6 +141,18 @@ def list_gallery(db: Session = Depends(get_db)):
 
 
 def _property_to_dict(prop: Property) -> dict:
+    features = []
+    specs = []
+    if prop.features:
+        try:
+            features = json.loads(prop.features)
+        except (json.JSONDecodeError, TypeError):
+            pass
+    if prop.specs:
+        try:
+            specs = json.loads(prop.specs)
+        except (json.JSONDecodeError, TypeError):
+            pass
     return {
         "id": prop.id,
         "title": prop.title,
@@ -151,6 +164,9 @@ def _property_to_dict(prop: Property) -> dict:
         "type": prop.type,
         "tag": prop.tag,
         "tagFeatured": prop.tagFeatured,
+        "longDescription": prop.longDescription or prop.description or "",
+        "features": features,
+        "specs": specs,
         "gallery": [img.image_url for img in prop.gallery_images],
         "created_at": prop.created_at.isoformat() if prop.created_at else None,
     }
@@ -185,9 +201,16 @@ def admin_add_property(
     image: str = Form(""),
     tag: str = Form(""),
     tagFeatured: bool = Form(False),
+    longDescription: str = Form(""),
+    features: str = Form(""),
+    specs: str = Form(""),
     db: Session = Depends(get_db),
 ):
-    prop = Property(title=title, description=description, price=price, location=location, type=type, image=image or None, tag=tag or None, tagFeatured=tagFeatured)
+    prop = Property(
+        title=title, description=description, price=price, location=location,
+        type=type, image=image or None, tag=tag or None, tagFeatured=tagFeatured,
+        longDescription=longDescription or None, features=features or None, specs=specs or None,
+    )
     db.add(prop)
     db.commit()
     return RedirectResponse("/admin/", status_code=303)
@@ -213,6 +236,9 @@ def admin_edit_property(
     image: str = Form(""),
     tag: str = Form(""),
     tagFeatured: bool = Form(False),
+    longDescription: str = Form(""),
+    features: str = Form(""),
+    specs: str = Form(""),
     db: Session = Depends(get_db),
 ):
     prop = db.query(Property).filter(Property.id == property_id).first()
@@ -225,6 +251,9 @@ def admin_edit_property(
         prop.image = image or None
         prop.tag = tag or None
         prop.tagFeatured = tagFeatured
+        prop.longDescription = longDescription or None
+        prop.features = features or None
+        prop.specs = specs or None
         db.commit()
     return RedirectResponse("/admin/", status_code=303)
 

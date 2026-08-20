@@ -16,6 +16,9 @@ class Property(Base):
     type = Column(String(50), nullable=False)
     tag = Column(String(100), nullable=True)
     tagFeatured = Column(Boolean, default=False)
+    longDescription = Column(Text, nullable=True)
+    features = Column(Text, nullable=True)
+    specs = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     gallery_images = relationship("PropertyImage", back_populates="property", cascade="all, delete-orphan")

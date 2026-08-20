@@ -227,14 +227,7 @@ function mapDjangoProperty(p: any): Property {
   if (Array.isArray(p.gallery) && p.gallery.length > 0) {
     gallery = p.gallery.map(resolveAssetUrl);
   } else {
-    const match = defaultProperties.find(
-      (dp) => dp.id === String(p.id) || dp.title.toLowerCase() === (p.title || "").toLowerCase()
-    );
-    if (match) {
-      gallery = match.gallery;
-    } else {
-      gallery = [primaryImage, galleryInterior, galleryKitchen];
-    }
+    gallery = [primaryImage];
   }
 
   return {
@@ -249,11 +242,15 @@ function mapDjangoProperty(p: any): Property {
     image: primaryImage,
     gallery: gallery,
     longDescription: p.longDescription || p.description || "",
-    features: ["Verified documentation", "Premium location", "Full Indenture & Title"],
-    specs: [
-      { label: "Status", value: p.tag || "Available" },
-      { label: "Type", value: (p.type || "").charAt(0).toUpperCase() + (p.type || "").slice(1) },
-    ],
+    features: Array.isArray(p.features) && p.features.length > 0
+      ? p.features
+      : ["Verified documentation", "Premium location", "Full Indenture & Title"],
+    specs: Array.isArray(p.specs) && p.specs.length > 0
+      ? p.specs
+      : [
+          { label: "Status", value: p.tag || "Available" },
+          { label: "Type", value: (p.type || "").charAt(0).toUpperCase() + (p.type || "").slice(1) },
+        ],
   };
 }
 
