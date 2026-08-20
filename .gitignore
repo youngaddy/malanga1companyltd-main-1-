@@ -8,6 +8,7 @@ backend/db.sqlite3-journal
 backend/staticfiles/
 backend/server.log
 backend/server_err.log
+backend/media/
 
 # Environment
 .env

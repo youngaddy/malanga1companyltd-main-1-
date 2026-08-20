@@ -16,7 +16,7 @@ from typing import Optional
 from database import Base, engine, get_db
 from models import Property, PropertyImage, ContactMessage, Testimonial, Stat
 
-ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "malanga1admin")
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "Ma0201629806@")
 ADMIN_TOKEN = secrets.token_hex(32)
 
 app = FastAPI()
