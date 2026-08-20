@@ -366,12 +366,21 @@ def admin_edit_stat(
 @app.post("/admin/gallery/add")
 def admin_add_gallery_image(
     property_id: int = Form(...),
-    image_url: str = Form(...),
+    image_url: str = Form(""),
+    image_urls: str = Form(""),
     caption: str = Form(""),
     db: Session = Depends(get_db),
 ):
-    img = PropertyImage(property_id=property_id, image_url=image_url, caption=caption or None)
-    db.add(img)
+    urls = []
+    if image_url:
+        urls.append(image_url)
+    if image_urls:
+        for line in image_urls.strip().splitlines():
+            line = line.strip()
+            if line:
+                urls.append(line)
+    for url in urls:
+        db.add(PropertyImage(property_id=property_id, image_url=url, caption=caption or None))
     db.commit()
     return RedirectResponse("/admin/", status_code=303)
 

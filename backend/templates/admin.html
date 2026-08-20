@@ -226,7 +226,7 @@
                 {% endif %}
 
                 <div class="add-form">
-                    <h3>Add Gallery Image</h3>
+                    <h3>Add Gallery Images</h3>
                     <form method="post" action="/admin/gallery/add">
                         <div class="form-row">
                             <div class="form-group">
@@ -238,10 +238,15 @@
                                     {% endfor %}
                                 </select>
                             </div>
-                            <div class="form-group"><label>Image URL</label><input name="image_url" required placeholder="https://..."></div>
-                            <div class="form-group"><label>Caption</label><input name="caption"></div>
+                            <div class="form-group"><label>Caption</label><input name="caption" placeholder="Optional caption for all images"></div>
                         </div>
-                        <button class="btn btn-approve" type="submit">Add Image</button>
+                        <div class="form-row">
+                            <div class="form-group"><label>Single Image URL</label><input name="image_url" placeholder="https://... (optional)"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Multiple Image URLs (one per line)</label><textarea name="image_urls" rows="4" placeholder="https://image1.jpg&#10;https://image2.jpg&#10;https://image3.jpg"></textarea></div>
+                        </div>
+                        <button class="btn btn-approve" type="submit">Add Images</button>
                     </form>
                 </div>
             </div>
