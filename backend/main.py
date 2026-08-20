@@ -238,6 +238,25 @@ def admin_approve_testimonial(testimonial_id: int, db: Session = Depends(get_db)
     return RedirectResponse("/admin/", status_code=303)
 
 
+@app.post("/admin/testimonials/{testimonial_id}/edit")
+def admin_edit_testimonial(
+    testimonial_id: int,
+    name: str = Form(...),
+    role: str = Form(""),
+    quote: str = Form(...),
+    rating: int = Form(5),
+    db: Session = Depends(get_db),
+):
+    t = db.query(Testimonial).filter(Testimonial.id == testimonial_id).first()
+    if t:
+        t.name = name
+        t.role = role or None
+        t.quote = quote
+        t.rating = rating
+        db.commit()
+    return RedirectResponse("/admin/", status_code=303)
+
+
 @app.post("/admin/testimonials/{testimonial_id}/delete")
 def admin_delete_testimonial(testimonial_id: int, db: Session = Depends(get_db)):
     t = db.query(Testimonial).filter(Testimonial.id == testimonial_id).first()
@@ -252,6 +271,25 @@ def admin_delete_contact(contact_id: int, db: Session = Depends(get_db)):
     c = db.query(ContactMessage).filter(ContactMessage.id == contact_id).first()
     if c:
         db.delete(c)
+        db.commit()
+    return RedirectResponse("/admin/", status_code=303)
+
+
+@app.post("/admin/contacts/{contact_id}/edit")
+def admin_edit_contact(
+    contact_id: int,
+    name: str = Form(...),
+    phone: str = Form(...),
+    email: str = Form(""),
+    message: str = Form(...),
+    db: Session = Depends(get_db),
+):
+    c = db.query(ContactMessage).filter(ContactMessage.id == contact_id).first()
+    if c:
+        c.name = name
+        c.phone = phone
+        c.email = email or None
+        c.message = message
         db.commit()
     return RedirectResponse("/admin/", status_code=303)
 
@@ -275,6 +313,23 @@ def admin_delete_stat(stat_id: int, db: Session = Depends(get_db)):
     s = db.query(Stat).filter(Stat.id == stat_id).first()
     if s:
         db.delete(s)
+        db.commit()
+    return RedirectResponse("/admin/", status_code=303)
+
+
+@app.post("/admin/stats/{stat_id}/edit")
+def admin_edit_stat(
+    stat_id: int,
+    label: str = Form(...),
+    value: int = Form(...),
+    suffix: str = Form("+"),
+    db: Session = Depends(get_db),
+):
+    s = db.query(Stat).filter(Stat.id == stat_id).first()
+    if s:
+        s.label = label
+        s.value = value
+        s.suffix = suffix
         db.commit()
     return RedirectResponse("/admin/", status_code=303)
 
