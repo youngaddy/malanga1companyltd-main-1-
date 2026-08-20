@@ -1,6 +1,11 @@
 import os
 import json
-from fastapi import FastAPI, Depends, Request, Form, HTTPException
+import secrets
+import hashlib
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request as StarletteRequest
+from starlette.responses import RedirectResponse as StarletteRedirect
+from fastapi import FastAPI, Depends, Request, Form, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -11,6 +16,9 @@ from typing import Optional
 from database import Base, engine, get_db
 from models import Property, PropertyImage, ContactMessage, Testimonial, Stat
 
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "malanga1admin")
+ADMIN_TOKEN = secrets.token_hex(32)
+
 app = FastAPI()
 
 app.add_middleware(
@@ -20,6 +28,17 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+class AdminAuthMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: StarletteRequest, call_next):
+        path = request.url.path
+        if path.startswith("/admin") and path not in ("/admin/login", "/admin/logout") and request.method == "POST":
+            token = request.cookies.get("admin_token")
+            if token != ADMIN_TOKEN:
+                return StarletteRedirect("/admin/login")
+        return await call_next(request)
+
+app.add_middleware(AdminAuthMiddleware)
 
 Base.metadata.create_all(bind=engine)
 
@@ -174,9 +193,35 @@ def _property_to_dict(prop: Property) -> dict:
 
 # --- Admin Dashboard ---
 
+def check_admin(request: Request):
+    token = request.cookies.get("admin_token")
+    if token == ADMIN_TOKEN:
+        return True
+    return False
+
+@app.get("/admin/login", response_class=HTMLResponse)
+def admin_login_page(request: Request, error: str = ""):
+    return templates.TemplateResponse(request, "login.html", {"error": error})
+
+@app.post("/admin/login")
+def admin_login_submit(request: Request, response: Response, password: str = Form(...)):
+    if password == ADMIN_PASSWORD:
+        response = RedirectResponse("/admin/", status_code=303)
+        response.set_cookie("admin_token", ADMIN_TOKEN, httponly=True, max_age=86400)
+        return response
+    return RedirectResponse("/admin/login?error=1", status_code=303)
+
+@app.get("/admin/logout")
+def admin_logout():
+    response = RedirectResponse("/admin/login", status_code=303)
+    response.delete_cookie("admin_token")
+    return response
+
 @app.get("/admin", response_class=HTMLResponse)
 @app.get("/admin/", response_class=HTMLResponse)
 def admin_dashboard(request: Request, db: Session = Depends(get_db)):
+    if not check_admin(request):
+        return RedirectResponse("/admin/login", status_code=303)
     properties = db.query(Property).order_by(Property.created_at.desc()).all()
     testimonials = db.query(Testimonial).order_by(Testimonial.created_at.desc()).all()
     contacts = db.query(ContactMessage).order_by(ContactMessage.created_at.desc()).all()
