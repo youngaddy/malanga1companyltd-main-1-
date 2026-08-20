@@ -25,14 +25,16 @@
         .badge-green { background: #d4edda; color: #155724; }
         .badge-yellow { background: #fff3cd; color: #856404; }
         .badge-blue { background: #d1ecf1; color: #0c5460; }
-        .badge-red { background: #f8d7da; color: #721c24; }
         .btn { padding: 4px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; text-decoration: none; display: inline-block; }
         .btn-approve { background: #28a745; color: white; }
+        .btn-edit { background: #007bff; color: white; }
         .btn-delete { background: #dc3545; color: white; }
+        .btn-cancel { background: #6c757d; color: white; }
         .btn-small { padding: 3px 8px; font-size: 0.75rem; }
+        .btn-group { display: flex; gap: 4px; }
         form.inline { display: inline; }
-        .add-form { background: #f9f9f9; padding: 1rem; border-radius: 8px; margin-top: 1rem; }
-        .add-form h3 { font-size: 0.95rem; margin-bottom: 0.75rem; }
+        .add-form, .edit-form { background: #f9f9f9; padding: 1rem; border-radius: 8px; margin-top: 1rem; }
+        .add-form h3, .edit-form h3 { font-size: 0.95rem; margin-bottom: 0.75rem; }
         .form-row { display: flex; gap: 0.75rem; margin-bottom: 0.5rem; flex-wrap: wrap; }
         .form-row input, .form-row select, .form-row textarea { padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.85rem; flex: 1; min-width: 120px; }
         .form-row textarea { min-height: 60px; }
@@ -44,6 +46,7 @@
         .tab.active { border-color: #1a1a2e; color: #1a1a2e; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
+        .edit-row { background: #fffde7 !important; }
     </style>
 </head>
 <body>
@@ -90,20 +93,51 @@
                 <h2>Properties</h2>
                 {% if properties %}
                 <table>
-                    <thead><tr><th>ID</th><th>Title</th><th>Price</th><th>Location</th><th>Type</th><th>Tag</th><th>Actions</th></tr></thead>
+                    <thead><tr><th>ID</th><th>Title</th><th>Price</th><th>Location</th><th>Type</th><th>Tag</th><th>Featured</th><th>Actions</th></tr></thead>
                     <tbody>
                     {% for p in properties %}
-                    <tr>
+                    <tr id="prop-row-{{ p.id }}">
                         <td>{{ p.id }}</td>
                         <td>{{ p.title }}</td>
                         <td>{{ p.price }}</td>
                         <td>{{ p.location }}</td>
                         <td><span class="badge badge-blue">{{ p.type }}</span></td>
                         <td>{{ p.tag or '—' }}</td>
+                        <td>{% if p.tagFeatured %}<span class="badge badge-green">Yes</span>{% else %}No{% endif %}</td>
                         <td>
-                            <form class="inline" method="post" action="/admin/properties/{{ p.id }}/delete" onsubmit="return confirm('Delete this property?')">
-                                <button class="btn btn-delete btn-small" type="submit">Delete</button>
-                            </form>
+                            <div class="btn-group">
+                                <button class="btn btn-edit btn-small" onclick="toggleEdit('prop', {{ p.id }})">Edit</button>
+                                <form class="inline" method="post" action="/admin/properties/{{ p.id }}/delete" onsubmit="return confirm('Delete this property?')">
+                                    <button class="btn btn-delete btn-small" type="submit">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr id="prop-edit-{{ p.id }}" style="display:none" class="edit-row">
+                        <td colspan="8">
+                            <div class="edit-form">
+                                <h3>Edit Property #{{ p.id }}</h3>
+                                <form method="post" action="/admin/properties/{{ p.id }}/edit">
+                                    <div class="form-row">
+                                        <div class="form-group"><label>Title</label><input name="title" value="{{ p.title }}" required></div>
+                                        <div class="form-group"><label>Price</label><input name="price" value="{{ p.price }}" required></div>
+                                        <div class="form-group"><label>Location</label><input name="location" value="{{ p.location }}" required></div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group"><label>Type</label><select name="type"><option value="plot" {% if p.type=='plot' %}selected{% endif %}>Plot</option><option value="house" {% if p.type=='house' %}selected{% endif %}>House</option><option value="rental" {% if p.type=='rental' %}selected{% endif %}>Rental</option></select></div>
+                                        <div class="form-group"><label>Tag</label><input name="tag" value="{{ p.tag or '' }}"></div>
+                                        <div class="form-group"><label>Image URL</label><input name="image" value="{{ p.image or '' }}"></div>
+                                        <div class="form-group" style="flex:0;min-width:auto"><label>Featured</label><input type="checkbox" name="tagFeatured" value="true" {% if p.tagFeatured %}checked{% endif %} style="margin-top:8px"></div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group"><label>Description</label><textarea name="description" required>{{ p.description }}</textarea></div>
+                                    </div>
+                                    <div class="btn-group">
+                                        <button class="btn btn-approve btn-small" type="submit">Save</button>
+                                        <button class="btn btn-cancel btn-small" type="button" onclick="toggleEdit('prop', {{ p.id }})">Cancel</button>
+                                    </div>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -145,15 +179,43 @@
                     <thead><tr><th>ID</th><th>Property</th><th>Image URL</th><th>Caption</th><th>Actions</th></tr></thead>
                     <tbody>
                     {% for g in gallery_images %}
-                    <tr>
+                    <tr id="gal-row-{{ g.id }}">
                         <td>{{ g.id }}</td>
                         <td>{{ g.property.title }}</td>
                         <td style="max-width:250px;overflow:hidden;text-overflow:ellipsis">{{ g.image_url }}</td>
                         <td>{{ g.caption or '—' }}</td>
                         <td>
-                            <form class="inline" method="post" action="/admin/gallery/{{ g.id }}/delete" onsubmit="return confirm('Delete this image?')">
-                                <button class="btn btn-delete btn-small" type="submit">Delete</button>
-                            </form>
+                            <div class="btn-group">
+                                <button class="btn btn-edit btn-small" onclick="toggleEdit('gal', {{ g.id }})">Edit</button>
+                                <form class="inline" method="post" action="/admin/gallery/{{ g.id }}/delete" onsubmit="return confirm('Delete this image?')">
+                                    <button class="btn btn-delete btn-small" type="submit">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr id="gal-edit-{{ g.id }}" style="display:none" class="edit-row">
+                        <td colspan="5">
+                            <div class="edit-form">
+                                <h3>Edit Gallery Image #{{ g.id }}</h3>
+                                <form method="post" action="/admin/gallery/{{ g.id }}/edit">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Property</label>
+                                            <select name="property_id" required>
+                                                {% for p in properties %}
+                                                <option value="{{ p.id }}" {% if g.property_id == p.id %}selected{% endif %}>{{ p.title }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="form-group"><label>Image URL</label><input name="image_url" value="{{ g.image_url }}" required></div>
+                                        <div class="form-group"><label>Caption</label><input name="caption" value="{{ g.caption or '' }}"></div>
+                                    </div>
+                                    <div class="btn-group">
+                                        <button class="btn btn-approve btn-small" type="submit">Save</button>
+                                        <button class="btn btn-cancel btn-small" type="button" onclick="toggleEdit('gal', {{ g.id }})">Cancel</button>
+                                    </div>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -201,14 +263,16 @@
                         <td>{{ t.rating }}/5</td>
                         <td>{% if t.is_approved %}<span class="badge badge-green">Approved</span>{% else %}<span class="badge badge-yellow">Pending</span>{% endif %}</td>
                         <td>
-                            {% if not t.is_approved %}
-                            <form class="inline" method="post" action="/admin/testimonials/{{ t.id }}/approve">
-                                <button class="btn btn-approve btn-small" type="submit">Approve</button>
-                            </form>
-                            {% endif %}
-                            <form class="inline" method="post" action="/admin/testimonials/{{ t.id }}/delete" onsubmit="return confirm('Delete?')">
-                                <button class="btn btn-delete btn-small" type="submit">Delete</button>
-                            </form>
+                            <div class="btn-group">
+                                {% if not t.is_approved %}
+                                <form class="inline" method="post" action="/admin/testimonials/{{ t.id }}/approve">
+                                    <button class="btn btn-approve btn-small" type="submit">Approve</button>
+                                </form>
+                                {% endif %}
+                                <form class="inline" method="post" action="/admin/testimonials/{{ t.id }}/delete" onsubmit="return confirm('Delete?')">
+                                    <button class="btn btn-delete btn-small" type="submit">Delete</button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -297,6 +361,17 @@
             document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
             document.getElementById('tab-' + name).classList.add('active');
             event.target.classList.add('active');
+        }
+        function toggleEdit(prefix, id) {
+            var row = document.getElementById(prefix + '-row-' + id);
+            var form = document.getElementById(prefix + '-edit-' + id);
+            if (form.style.display === 'none') {
+                form.style.display = '';
+                row.classList.add('edit-row');
+            } else {
+                form.style.display = 'none';
+                row.classList.remove('edit-row');
+            }
         }
     </script>
 </body>

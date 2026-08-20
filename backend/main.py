@@ -202,6 +202,33 @@ def admin_delete_property(property_id: int, db: Session = Depends(get_db)):
     return RedirectResponse("/admin/", status_code=303)
 
 
+@app.post("/admin/properties/{property_id}/edit")
+def admin_edit_property(
+    property_id: int,
+    title: str = Form(...),
+    description: str = Form(...),
+    price: str = Form(...),
+    location: str = Form(...),
+    type: str = Form(...),
+    image: str = Form(""),
+    tag: str = Form(""),
+    tagFeatured: bool = Form(False),
+    db: Session = Depends(get_db),
+):
+    prop = db.query(Property).filter(Property.id == property_id).first()
+    if prop:
+        prop.title = title
+        prop.description = description
+        prop.price = price
+        prop.location = location
+        prop.type = type
+        prop.image = image or None
+        prop.tag = tag or None
+        prop.tagFeatured = tagFeatured
+        db.commit()
+    return RedirectResponse("/admin/", status_code=303)
+
+
 @app.post("/admin/testimonials/{testimonial_id}/approve")
 def admin_approve_testimonial(testimonial_id: int, db: Session = Depends(get_db)):
     t = db.query(Testimonial).filter(Testimonial.id == testimonial_id).first()
@@ -270,5 +297,22 @@ def admin_delete_gallery_image(image_id: int, db: Session = Depends(get_db)):
     img = db.query(PropertyImage).filter(PropertyImage.id == image_id).first()
     if img:
         db.delete(img)
+        db.commit()
+    return RedirectResponse("/admin/", status_code=303)
+
+
+@app.post("/admin/gallery/{image_id}/edit")
+def admin_edit_gallery_image(
+    image_id: int,
+    property_id: int = Form(...),
+    image_url: str = Form(...),
+    caption: str = Form(""),
+    db: Session = Depends(get_db),
+):
+    img = db.query(PropertyImage).filter(PropertyImage.id == image_id).first()
+    if img:
+        img.property_id = property_id
+        img.image_url = image_url
+        img.caption = caption or None
         db.commit()
     return RedirectResponse("/admin/", status_code=303)
