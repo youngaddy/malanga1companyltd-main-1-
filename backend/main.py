@@ -267,6 +267,7 @@ def admin_add_property(
     longDescription: str = Form(""),
     features: str = Form(""),
     specs: str = Form(""),
+    gallery_urls: str = Form(""),
     db: Session = Depends(get_db),
 ):
     prop = Property(
@@ -275,6 +276,14 @@ def admin_add_property(
         longDescription=longDescription or None, features=features or None, specs=specs or None,
     )
     db.add(prop)
+    db.flush()
+    if image:
+        db.add(PropertyImage(property_id=prop.id, image_url=image))
+    if gallery_urls:
+        for line in gallery_urls.strip().splitlines():
+            line = line.strip()
+            if line:
+                db.add(PropertyImage(property_id=prop.id, image_url=line))
     db.commit()
     return RedirectResponse("/admin/", status_code=303)
 
@@ -302,6 +311,7 @@ def admin_edit_property(
     longDescription: str = Form(""),
     features: str = Form(""),
     specs: str = Form(""),
+    gallery_urls: str = Form(""),
     db: Session = Depends(get_db),
 ):
     prop = db.query(Property).filter(Property.id == property_id).first()
@@ -317,6 +327,11 @@ def admin_edit_property(
         prop.longDescription = longDescription or None
         prop.features = features or None
         prop.specs = specs or None
+        if gallery_urls:
+            for line in gallery_urls.strip().splitlines():
+                line = line.strip()
+                if line:
+                    db.add(PropertyImage(property_id=prop.id, image_url=line))
         db.commit()
     return RedirectResponse("/admin/", status_code=303)
 

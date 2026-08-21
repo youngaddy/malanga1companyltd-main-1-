@@ -167,13 +167,25 @@
                                     </div>
                                     <div class="form-row">
                                         <div class="form-group">
-                                            <label><span class="mobile-label">Image URL: </span>Image URL</label>
+                                            <label><span class="mobile-label">Main Image: </span>Main Image</label>
                                             <div class="upload-row">
                                                 <input name="image" id="edit-prop-image-{{ p.id }}" type="text" value="{{ p.image or '' }}">
                                                 <input type="file" id="edit-prop-image-file-{{ p.id }}" accept="image/*" style="display:none" onchange="uploadImage('edit-prop-image-file-{{ p.id }}','edit-prop-image-progress-{{ p.id }}')">
                                                 <button type="button" class="upload-btn" onclick="document.getElementById('edit-prop-image-file-{{ p.id }}').click()">Upload</button>
                                             </div>
                                             <div class="upload-progress" id="edit-prop-image-progress-{{ p.id }}"></div>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label><span class="mobile-label">Additional Images: </span>Additional Images (one URL per line)</label>
+                                            <textarea name="gallery_urls" id="edit-prop-gallery-{{ p.id }}" rows="3" placeholder="Paste image URLs, one per line, or upload files">{% for img in p.gallery_images %}{{ img.image_url }}
+{% endfor %}</textarea>
+                                            <input type="file" id="edit-prop-gallery-files-{{ p.id }}" accept="image/*" multiple style="display:none" onchange="uploadMultiple('edit-prop-gallery-files-{{ p.id }}','edit-prop-gallery-{{ p.id }}','edit-prop-gallery-progress-{{ p.id }}')">
+                                            <div style="display:flex;gap:6px;margin-top:4px">
+                                                <button type="button" class="upload-btn" onclick="document.getElementById('edit-prop-gallery-files-{{ p.id }}').click()">Upload Files</button>
+                                                <span class="upload-progress" id="edit-prop-gallery-progress-{{ p.id }}"></span>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="form-row">
@@ -210,7 +222,7 @@
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Image URL</label>
+                                <label>Main Image URL</label>
                                 <div class="upload-row">
                                     <input name="image" id="add-prop-image" type="text" placeholder="Paste URL or upload below">
                                     <input type="file" id="add-prop-image-file" accept="image/*" style="display:none" onchange="uploadImage('add-prop-image-file','add-prop-image-progress')">
@@ -218,6 +230,17 @@
                                 </div>
                                 <div class="upload-drop" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="handleDrop(event,'add-prop-image-file','add-prop-image-progress')" onclick="document.getElementById('add-prop-image-file').click()">Drop image here or click to browse</div>
                                 <div class="upload-progress" id="add-prop-image-progress"></div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Additional Images (one URL per line, or upload files)</label>
+                                <textarea name="gallery_urls" id="add-prop-gallery" rows="3" placeholder="https://image1.jpg&#10;https://image2.jpg&#10;https://image3.jpg"></textarea>
+                                <input type="file" id="add-prop-gallery-files" accept="image/*" multiple style="display:none" onchange="uploadMultiple('add-prop-gallery-files','add-prop-gallery','add-prop-gallery-progress')">
+                                <div style="display:flex;gap:6px;margin-top:4px">
+                                    <button type="button" class="upload-btn" onclick="document.getElementById('add-prop-gallery-files').click()">Upload Files</button>
+                                    <span class="upload-progress" id="add-prop-gallery-progress"></span>
+                                </div>
                             </div>
                         </div>
                         <div class="form-row">
@@ -568,6 +591,40 @@
                 document.getElementById(inputId).files = dt.files;
                 uploadImage(inputId, progressId);
             }
+        }
+        function uploadMultiple(fileInputId, textareaId, progressId) {
+            var input = document.getElementById(fileInputId);
+            var textarea = document.getElementById(textareaId);
+            var progress = document.getElementById(progressId);
+            var files = input.files;
+            if (!files.length) return;
+            var done = 0;
+            var total = files.length;
+            progress.textContent = 'Uploading ' + total + ' files...';
+            for (var i = 0; i < total; i++) {
+                var fd = new FormData();
+                fd.append('file', files[i]);
+                fetch('/admin/upload', { method: 'POST', body: fd })
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) {
+                        done++;
+                        if (data.url) {
+                            textarea.value += data.url + '\n';
+                        }
+                        progress.textContent = 'Uploaded ' + done + '/' + total;
+                        if (done === total) {
+                            progress.textContent = 'All done!';
+                            progress.style.color = '#28a745';
+                            setTimeout(function() { progress.textContent = ''; }, 3000);
+                        }
+                    })
+                    .catch(function(e) {
+                        done++;
+                        progress.textContent = 'Error on file ' + done + '/' + total;
+                        progress.style.color = '#dc3545';
+                    });
+            }
+            input.value = '';
         }
     </script>
 </body>
