@@ -2,12 +2,14 @@ import os
 import json
 import secrets
 import hashlib
+import cloudinary
+import cloudinary.uploader
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request as StarletteRequest
 from starlette.responses import RedirectResponse as StarletteRedirect
-from fastapi import FastAPI, Depends, Request, Form, HTTPException, Response
+from fastapi import FastAPI, Depends, Request, Form, HTTPException, Response, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
@@ -18,6 +20,13 @@ from models import Property, PropertyImage, ContactMessage, Testimonial, Stat
 
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "Ma0201629806@")
 ADMIN_TOKEN = secrets.token_hex(32)
+
+cloudinary.config(
+    cloud_name=os.environ.get("CLOUDINARY_CLOUD_NAME", "j1k7ai8b"),
+    api_key=os.environ.get("CLOUDINARY_API_KEY", "828539382883754"),
+    api_secret=os.environ.get("CLOUDINARY_API_SECRET", "N9Zw42Ad4xSbwt8x6he2iP2YwLM"),
+    secure=True,
+)
 
 app = FastAPI()
 
@@ -32,7 +41,7 @@ app.add_middleware(
 class AdminAuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: StarletteRequest, call_next):
         path = request.url.path
-        if path.startswith("/admin") and path not in ("/admin/login", "/admin/logout") and request.method == "POST":
+        if path.startswith("/admin") and path not in ("/admin/login", "/admin/logout", "/admin/upload") and request.method == "POST":
             token = request.cookies.get("admin_token")
             if token != ADMIN_TOKEN:
                 return StarletteRedirect("/admin/login")
@@ -189,6 +198,15 @@ def _property_to_dict(prop: Property) -> dict:
         "gallery": [img.image_url for img in prop.gallery_images],
         "created_at": prop.created_at.isoformat() if prop.created_at else None,
     }
+
+
+@app.post("/admin/upload")
+async def admin_upload_image(request: Request, file: UploadFile = File(...)):
+    token = request.cookies.get("admin_token")
+    if token != ADMIN_TOKEN:
+        return JSONResponse({"error": "Unauthorized"}, status_code=401)
+    result = cloudinary.uploader.upload(file.file, folder="malanga1")
+    return JSONResponse({"url": result["secure_url"]})
 
 
 # --- Admin Dashboard ---
