@@ -1,171 +1,160 @@
 # Malanga 1 Admin Dashboard Guide
 
+The website and its dashboard now run entirely on Firebase, so there is no
+sleeping server and no Render wake-up delay.
+
 ## Accessing the Dashboard
 
-1. Go to **https://malanga1-backend.onrender.com/admin/login**
+1. Go to **https://malanga1company.web.app/admin**
 2. Enter your password: `Ma0201629806@`
-3. You'll be redirected to the main dashboard
-4. To log out, click **Logout** in the top-right corner
+3. The dashboard opens with your properties, gallery, testimonials, messages and stats
+4. Click **Logout** in the top-right corner when you are finished
 
-> **Note:** If the page shows "Not Found" on first load, wait 30 seconds and refresh. The server sleeps after inactivity and needs to wake up.
+> Your sign-in is handled by Firebase Authentication using the account
+> `admin@malanga1company.com`. You only ever type the password — the email is
+> filled in for you.
+
+> **Bookmark it.** `https://malanga1company.com/admin` will also work once the
+> custom domain is pointed at Firebase Hosting.
 
 ---
 
 ## Dashboard Overview
 
-When you first log in, you'll see:
-- **Stats bar** at the top showing counts of Properties, Testimonials, Messages, Stats, and Gallery Images
-- **Tab navigation** to switch between sections: Properties, Gallery, Testimonials, Messages, Stats
+When you log in you see:
+
+- **Stats bar** at the top: counts of Properties, Gallery images, Testimonials, Messages and Stats
+- **Tabs** to switch between Properties, Gallery, Testimonials, Messages and Stats
+
+Every change is saved to Firestore immediately and appears on the public site
+on the next page load.
 
 ---
 
 ## Managing Properties
 
-### Viewing Properties
-- Click the **Properties** tab
-- All properties are listed in a table with ID, Title, Price, Location, Type, Tag, and Featured status
+### Viewing properties
+Click the **Properties** tab. Each row shows the image, title, price, location,
+type, tag and action buttons.
 
-### Adding a Property
-1. Scroll to the **Add Property** form at the bottom of the Properties tab
-2. Fill in the required fields:
-   - **Title** — Property name (e.g., "The Savanna Villa")
-   - **Price** — Display price (e.g., "GHc 1,850,000")
-   - **Location** — Area name (e.g., "Airport Ridge")
-   - **Type** — Select Plot, House, or Rental
-   - **Description** — Short description (shown on property cards)
-3. Fill in optional fields:
-   - **Tag** — Badge text (e.g., "Featured", "For Sale", "Land Sale")
-   - **Featured** — Check to mark as featured property
-4. Upload images:
-   - **Main Image** — Click "Upload" or drag-and-drop the hero/display image
-   - **Additional Images** — Click "Upload Files" to select multiple images at once, or paste URLs one per line
-5. Click **Add Property**
+### Adding a property
+1. Click **+ Add property**
+2. Fill in:
+   - **Title** — property name (e.g. "The Savanna Villa")
+   - **Price** — display price (e.g. "GH₵ 1,850,000")
+   - **Location** — area name (e.g. "Airport Ridge")
+   - **Type** — Plot, House or Rental
+   - **Description** — the short line shown on property cards
+3. Optional fields:
+   - **Tag** — badge text such as "Featured", "For Sale", "Land Sale"
+   - **Order** — position in the listings (lowest first)
+   - **Long description** — the full text on the property page
+   - **Features** — one per line
+   - **Specs** — one `Label: Value` per line (e.g. `Bedrooms: 5`)
+   - **Feature this property on the homepage** — highlights it on the home page
+4. Add images:
+   - **Main image URL** — click the file picker to upload, or paste a URL
+   - **Gallery image URLs** — paste one URL per line, or upload several files at once
+5. Click **Add property**
 
-### Editing a Property
-1. Find the property in the table
-2. Click the **Edit** button
-3. Update any fields you need
-4. To add more gallery images, paste URLs in the "Additional Images" box or click "Upload Files"
-5. Click **Save**
+### Editing a property
+1. Click **Edit** on the property row
+2. Change any field, upload extra gallery images if needed
+3. Click **Save changes**
 
-### Deleting a Property
-1. Find the property in the table
-2. Click the **Delete** button
-3. Confirm the deletion
+### Deleting a property
+Click **Delete** and confirm. This also removes it from the gallery.
+
+### Seeding sample data
+On a completely empty database, **Seed sample data** fills in the six demo
+properties, the four homepage stats and four approved testimonials. It never
+overwrites existing records.
 
 ---
 
 ## Managing Gallery Images
 
-### Viewing Gallery
-- Click the **Gallery** tab
-- See all images across all properties
+The **Gallery** tab lists every image used by the site: each property's main
+image plus its gallery images.
 
-### Adding Gallery Images to a Property
-1. Scroll to **Add Gallery Images**
-2. Select the property from the dropdown
-3. Upload method:
-   - **Single image:** Click "Upload" and select one file, or paste a URL
-   - **Multiple images:** Paste multiple URLs (one per line) in the text area
-4. Optionally add a caption
-5. Click **Add Images**
+### Adding gallery images
+1. Click **+ Add gallery images**
+2. Choose the property
+3. Paste URLs (one per line) or upload files
+4. Click **Add images**
 
-### Editing a Gallery Image
-1. Find the image in the table
-2. Click **Edit**
-3. Update the image URL, caption, or reassign to a different property
-4. Click **Save**
-
-### Deleting a Gallery Image
-1. Find the image in the table
-2. Click **Delete**
-3. Confirm
+### Removing a gallery image
+Click **Remove** next to the image and confirm. The main image can only be
+changed by editing the property itself.
 
 ---
 
 ## Managing Testimonials
 
-### Viewing Testimonials
-- Click the **Testimonials** tab
-- See all testimonials with their approval status (Approved or Pending)
+Reviews submitted through the website arrive as **Pending** and stay hidden
+until you approve them.
 
-### Approving a Testimonial
-- Click the **Approve** button next to a pending testimonial
-- It will now show on the public website
-
-### Editing a Testimonial
-1. Click **Edit**
-2. Update the name, role, rating (1-5), or quote
-3. Click **Save**
-
-### Deleting a Testimonial
-- Click **Delete** and confirm
+- **Approve** — publishes the review on the website immediately
+- **Edit** — change the name, role, quote or rating (1–5 stars)
+- **Delete** — remove it permanently
 
 ---
 
 ## Managing Contact Messages
 
-### Viewing Messages
-- Click the **Messages** tab
-- See all enquiry messages submitted through the website
+The **Messages** tab lists every enquiry from the website, newest first, with
+the date, name, phone, email and message. Enquiries sent from a property page
+also show which property the visitor was viewing.
 
-### Editing a Message
-- Click **Edit** to update name, phone, email, or message content
-- Click **Save**
-
-### Deleting a Message
-- Click **Delete** and confirm
+Click **Delete** to remove a message once you have handled it. Messages are
+private: only the admin account can read them, so enquiries are never exposed
+on the public site.
 
 ---
 
-## Managing Stats (Counter Numbers)
+## Managing Stats (Homepage Numbers)
 
-The stats section controls the numbers shown on the homepage (e.g., "150+ Plots Sold").
+These are the counters on the homepage, e.g. "150+ Plots Sold".
 
-### Adding a Stat
-1. Scroll to **Add Stat**
-2. Enter:
-   - **Label** — What the number represents (e.g., "Plots Sold")
-   - **Value** — The number (e.g., 150)
-   - **Suffix** — What comes after the number (+, %, etc.)
-3. Click **Add Stat**
+### Adding a stat
+1. Click **+ Add stat**
+2. Enter the **Label**, the **Value**, the **Suffix** (`+`, `%`, …) and the **Order**
+3. Click **Add stat**
 
-### Editing a Stat
-- Click **Edit**, update the values, click **Save**
-
-### Deleting a Stat
-- Click **Delete** and confirm
+### Editing or deleting
+Use **Edit** or **Delete** on the stat row.
 
 ---
 
 ## Uploading Images
 
-Every image field in the dashboard has two options:
+Every image field accepts either method:
 
-### Option 1: Upload (Recommended)
-1. Click the **Upload** button (purple) next to any image field
-2. Select an image from your device
-3. It uploads to Cloudinary automatically and fills in the URL
-4. You can also **drag and drop** an image onto the drop zone
+### Option 1: Paste a URL
+Paste any public image URL (for example from imgbb.com or imgur.com) into the
+text field. This always works.
 
-### Option 2: Paste URL
-1. Get an image URL from any hosting service (imgbb.com, imgur.com, etc.)
-2. Paste it into the image URL field
+### Option 2: Upload
+Click the file picker next to the field and choose an image. It is uploaded to
+Firebase Storage and the URL is filled in automatically. You can select several
+files at once for gallery fields.
 
-### Uploading Multiple Images
-- In the **Additional Images** textarea on property forms, click **Upload Files**
-- Hold **Ctrl** (Windows) or **Cmd** (Mac) to select multiple files
-- Each image uploads and its URL is added to the list automatically
+> **Uploads are currently switched off** because Firebase Storage needs billing
+> enabled on the project, and no card is on file yet. The dashboard disables the
+> file pickers and says so. Use Option 1 until Storage is set up — nothing else
+> in the dashboard is affected.
+
+Images must be under 10 MB and must be image files (JPG, PNG, WebP, GIF).
 
 ---
 
 ## Tips
 
-- **Mobile friendly** — The dashboard works on phones. Tables scroll horizontally, forms stack vertically
-- **Session stays active** for 24 hours. After that, you'll need to log in again
-- **Images are hosted on Cloudinary** — they load fast and won't disappear
-- **Always add a main image** — This is the image shown on property cards and the property page hero
-- **Gallery images** appear as thumbnails below the main image on the property detail page
+- **Works on phones** — tables scroll sideways and forms stack vertically
+- **Sessions persist** — you stay signed in until you log out
+- **Always add a main image** — it is used on property cards and the property page
+- **Gallery images** appear as thumbnails under the main image on the property page
+- **Order matters** — properties and stats are sorted by their Order number
 
 ---
 
@@ -173,9 +162,6 @@ Every image field in the dashboard has two options:
 
 | Page | URL |
 |------|-----|
-| Admin Login | https://malanga1-backend.onrender.com/admin/login |
-| Admin Dashboard | https://malanga1-backend.onrender.com/admin/ |
-| API (Properties) | https://malanga1-backend.onrender.com/api/properties/ |
-| API (Testimonials) | https://malanga1-backend.onrender.com/api/testimonials/ |
-| API (Stats) | https://malanga1-backend.onrender.com/api/stats/ |
-| Frontend Website | https://malanga1companyltd-main-1.onrender.com |
+| Admin Dashboard | https://malanga1company.web.app/admin |
+| Public Website | https://malanga1company.web.app |
+| Firebase Console | https://console.firebase.google.com/project/malanga1company |

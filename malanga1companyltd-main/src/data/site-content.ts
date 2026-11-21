@@ -1,3 +1,6 @@
+import { addDoc, collection, getDocs, query, serverTimestamp, where } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+
 export interface Testimonial {
   id: string;
   name: string;
@@ -60,23 +63,6 @@ export const defaultStats: Stat[] = [
   { id: "4", label: "Verified Titles", value: 100, suffix: "%" },
 ];
 
-interface TestimonialApiResponse {
-  id: number;
-  name: string;
-  role: string | null;
-  quote: string;
-  rating: number;
-}
-
-interface StatApiResponse {
-  id: number;
-  label: string;
-  value: number;
-  suffix: string;
-}
-
-const BASE_API = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
-
 function makeInitials(name: string): string {
   return name
     .split(" ")
@@ -87,48 +73,48 @@ function makeInitials(name: string): string {
     .toUpperCase();
 }
 
-function mapTestimonial(t: TestimonialApiResponse): Testimonial {
+function mapTestimonial(id: string, t: Record<string, any>): Testimonial {
   return {
-    id: String(t.id),
-    name: t.name,
+    id,
+    name: t.name || "",
     role: t.role || "",
-    quote: t.quote,
+    quote: t.quote || "",
     rating: Number(t.rating) || 5,
-    initials: makeInitials(t.name),
+    initials: makeInitials(t.name || ""),
   };
 }
 
 export async function fetchTestimonials(): Promise<Testimonial[]> {
   try {
-    const res = await fetch(`${BASE_API}/testimonials/`);
-    if (!res.ok) throw new Error("Failed to fetch testimonials");
-    const data = await res.json();
-    if (Array.isArray(data) && data.length > 0) {
-      return data.map(mapTestimonial);
-    }
-    return defaultTestimonials;
+    const snapshot = await getDocs(
+      query(collection(db, "testimonials"), where("approved", "==", true)),
+    );
+    if (snapshot.empty) return defaultTestimonials;
+    return snapshot.docs.map((d) => mapTestimonial(d.id, d.data()));
   } catch (error) {
-    console.warn("Could not connect to backend API, using local testimonials:", error);
+    console.warn("Could not load testimonials from Firestore, using local data:", error);
     return defaultTestimonials;
   }
 }
 
 export async function fetchStats(): Promise<Stat[]> {
   try {
-    const res = await fetch(`${BASE_API}/stats/`);
-    if (!res.ok) throw new Error("Failed to fetch stats");
-    const data = await res.json();
-    if (Array.isArray(data) && data.length > 0) {
-      return data.map((s: StatApiResponse) => ({
-        id: String(s.id),
-        label: s.label,
-        value: Number(s.value),
-        suffix: s.suffix || "",
-      }));
-    }
-    return defaultStats;
+    const snapshot = await getDocs(collection(db, "stats"));
+    if (snapshot.empty) return defaultStats;
+    return snapshot.docs
+      .map((d) => ({
+        order: Number(d.data().order ?? 0),
+        stat: {
+          id: d.id,
+          label: d.data().label || "",
+          value: Number(d.data().value) || 0,
+          suffix: d.data().suffix || "",
+        },
+      }))
+      .sort((a, b) => a.order - b.order)
+      .map((entry) => entry.stat);
   } catch (error) {
-    console.warn("Could not connect to backend API, using local stats:", error);
+    console.warn("Could not load stats from Firestore, using local data:", error);
     return defaultStats;
   }
 }
@@ -139,10 +125,9 @@ export async function submitTestimonial(input: {
   quote: string;
   rating: number;
 }): Promise<void> {
-  const res = await fetch(`${BASE_API}/testimonials/`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(input),
+  await addDoc(collection(db, "testimonials"), {
+    ...input,
+    approved: false,
+    createdAt: serverTimestamp(),
   });
-  if (!res.ok) throw new Error("Failed to submit testimonial");
 }

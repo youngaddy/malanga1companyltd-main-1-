@@ -85,18 +85,9 @@ function Index() {
     <main>
       {/* Hero */}
       <header className="relative flex min-h-[92vh] items-center overflow-hidden px-5 pt-28 pb-16 sm:px-6 sm:pt-32 sm:pb-24 lg:min-h-screen lg:pt-24 lg:pb-0">
-        {/* Video Background */}
+        {/* Hero image */}
         <div className="absolute inset-0 z-0">
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            poster={heroVilla}
-            className="h-full w-full object-cover"
-          >
-            <source src="https://videos.pexels.com/video-files/7578539/7578539-uhd_2560_1440_25fps.mp4" type="video/mp4" />
-          </video>
+          <img src={heroVilla} alt="" className="h-full w-full object-cover" />
           <div className="absolute inset-0 bg-background/70 backdrop-blur-[2px]" />
         </div>
 
@@ -170,16 +161,11 @@ function Index() {
             className="relative hidden lg:block"
           >
             <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[2.5rem] shadow-2xl">
-              <video
-                autoPlay
-                muted
-                loop
-                playsInline
-                poster={heroVilla}
+              <img
+                src={heroVilla}
+                alt="Malanga 1 estate home in Tamale"
                 className="h-full w-full object-cover"
-              >
-                <source src="https://videos.pexels.com/video-files/7578539/7578539-uhd_2560_1440_25fps.mp4" type="video/mp4" />
-              </video>
+              />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
             </div>
             <div className="glass-strong animate-float-slow absolute -bottom-6 left-2 max-w-[16rem] rounded-2xl p-5 shadow-xl sm:-bottom-8 sm:-left-4 sm:max-w-xs sm:rounded-[2rem] sm:p-8 md:-left-16">

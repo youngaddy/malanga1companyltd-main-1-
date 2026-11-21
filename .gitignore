@@ -8,6 +8,7 @@ backend/db.sqlite3-journal
 backend/staticfiles/
 backend/server.log
 backend/server_err.log
+backend/server_out.log
 backend/media/
 
 # Environment
@@ -23,6 +24,12 @@ dist-ssr/
 .vinxi/
 .tanstack/
 .wrangler/
+
+# Firebase CLI cache
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
 
 # Editor / OS
 .vscode/*

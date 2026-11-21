@@ -6,6 +6,7 @@ import { PropertyCard } from "@/components/PropertyCard";
 import { Reveal } from "@/components/Reveal";
 import { Lightbox } from "@/components/Lightbox";
 import { PHONE_DISPLAY, PHONE_TEL, EMAIL, whatsappUrl } from "@/lib/contact";
+import { submitContactMessage } from "@/lib/messages";
 import * as seo from "@/lib/seo";
 
 export const Route = createFileRoute("/properties/$id")({
@@ -272,23 +273,17 @@ function PropertyDetail() {
                   onSubmit={async (e) => {
                     e.preventDefault();
                     const formData = new FormData(e.currentTarget);
-                    const baseApi = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
                     try {
-                        const res = await fetch(`${baseApi}/contact/`, {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                                name: formData.get("name"),
-                                phone: formData.get("phone"),
-                                email: formData.get("email"),
-                                message: formData.get("message"),
-                                property_id: property.id
-                            })
-                        });
-                        if (!res.ok) throw new Error("Failed to send enquiry");
-                        setSent(true);
+                      await submitContactMessage({
+                        name: String(formData.get("name") || ""),
+                        phone: String(formData.get("phone") || ""),
+                        email: String(formData.get("email") || ""),
+                        message: String(formData.get("message") || ""),
+                        propertyId: property.id,
+                      });
+                      setSent(true);
                     } catch (err) {
-                        console.error(err);
+                      console.error(err);
                     }
                   }}
                   className="space-y-3 sm:space-y-4"

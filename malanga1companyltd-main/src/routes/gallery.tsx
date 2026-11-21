@@ -14,6 +14,9 @@ import galleryEstate from "@/assets/gallery-estate.jpg";
 import galleryKitchen from "@/assets/gallery-kitchen.jpg";
 
 import * as seo from "@/lib/seo";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { resolveImageUrl } from "@/data/properties";
 
 interface GalleryItem {
   src: string;
@@ -34,16 +37,26 @@ const fallbackItems: GalleryItem[] = [
 ];
 
 async function fetchGalleryItems(): Promise<GalleryItem[]> {
-  const baseApi = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
   let apiItems: GalleryItem[] = [];
   try {
-    const res = await fetch(`${baseApi}/gallery/`);
-    if (res.ok) {
-      const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) apiItems = data;
-    }
+    const snapshot = await getDocs(collection(db, "properties"));
+    snapshot.forEach((d) => {
+      const p = d.data();
+      if (p.image) {
+        apiItems.push({
+          src: resolveImageUrl(p.image),
+          caption: `${p.title} — ${p.description}`,
+          tall: true,
+        });
+      }
+      if (Array.isArray(p.gallery)) {
+        p.gallery.forEach((src: string) => {
+          apiItems.push({ src: resolveImageUrl(src), caption: `${p.title} gallery`, tall: false });
+        });
+      }
+    });
   } catch {
-    // Backend offline — use sample images only
+    // Firestore unavailable — use sample images only
   }
   const fallbackFilenames = new Set(fallbackItems.map((i) => i.src.split("/").pop()));
   const uniqueApiItems = apiItems.filter((i) => !fallbackFilenames.has(i.src.split("/").pop()));

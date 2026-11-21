@@ -1,4 +1,4 @@
-export type PropertyType = "plot" | "house" | "rental";
+﻿export type PropertyType = "plot" | "house" | "rental";
 
 import heroVilla from "@/assets/hero-villa.jpg";
 import plotLamashegu from "@/assets/plot-lamashegu.jpg";
@@ -9,6 +9,8 @@ import galleryEstate from "@/assets/gallery-estate.jpg";
 import galleryInterior from "@/assets/gallery-interior.jpg";
 import galleryConstruction from "@/assets/gallery-construction.jpg";
 import galleryKitchen from "@/assets/gallery-kitchen.jpg";
+import { collection, doc, getDoc, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 export interface Property {
   id: string;
@@ -47,7 +49,7 @@ const ASSET_MAP: Record<string, string> = {
   "gallery-kitchen.jpg": galleryKitchen,
 };
 
-function resolveAssetUrl(url: string): string {
+export function resolveImageUrl(url: string): string {
   if (!url) return heroVilla;
   if (ASSET_MAP[url]) return ASSET_MAP[url];
   const filename = url.split("/").pop() || "";
@@ -60,7 +62,7 @@ export const defaultProperties: Property[] = [
     id: "1",
     title: "The Savanna Villa",
     description: "Executive 5 Bedroom Villa",
-    price: "GH₵ 1,850,000",
+    price: "GHâ‚µ 1,850,000",
     location: "Airport Ridge",
     tag: "Featured",
     tagFeatured: true,
@@ -88,7 +90,7 @@ export const defaultProperties: Property[] = [
     id: "2",
     title: "Lamashegu Prime Plot",
     description: "100 x 100 Residential Land",
-    price: "GH₵ 45,000",
+    price: "GHâ‚µ 45,000",
     location: "Tamale South",
     tag: "For Sale",
     tagFeatured: false,
@@ -115,7 +117,7 @@ export const defaultProperties: Property[] = [
     id: "3",
     title: "The Garden Residency",
     description: "3 Bedroom Luxury Rental",
-    price: "GH₵ 2,500/mo",
+    price: "GHâ‚µ 2,500/mo",
     location: "Vittin Target",
     tag: "Featured",
     tagFeatured: true,
@@ -142,7 +144,7 @@ export const defaultProperties: Property[] = [
     id: "4",
     title: "Kalpohin Hill View",
     description: "Multi-purpose Commercial Plot",
-    price: "GH₵ 75,000",
+    price: "GHâ‚µ 75,000",
     location: "Kalpohin",
     tag: "For Sale",
     tagFeatured: false,
@@ -167,7 +169,7 @@ export const defaultProperties: Property[] = [
     id: "5",
     title: "Sagnarigu Family Home",
     description: "4 Bedroom Detached House",
-    price: "GH₵ 950,000",
+    price: "GHâ‚µ 950,000",
     location: "Sagnarigu",
     tag: "For Sale",
     tagFeatured: false,
@@ -193,8 +195,8 @@ export const defaultProperties: Property[] = [
   {
     id: "6",
     title: "Gurugu Estate Plots",
-    description: "Serviced Plots — Gated Estate",
-    price: "GH₵ 60,000",
+    description: "Serviced Plots â€” Gated Estate",
+    price: "GHâ‚µ 60,000",
     location: "Gurugu",
     tag: "Land Sale",
     tagFeatured: false,
@@ -217,69 +219,64 @@ export const defaultProperties: Property[] = [
   },
 ];
 
-const BASE_API = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
-const API_URL = `${BASE_API}/properties/`;
-
-function mapDjangoProperty(p: any): Property {
-  const primaryImage = resolveAssetUrl(p.display_image || p.image);
-  let gallery: string[] = [];
-
-  if (Array.isArray(p.gallery) && p.gallery.length > 0) {
-    gallery = p.gallery.map(resolveAssetUrl);
-  } else {
-    gallery = [primaryImage];
-  }
+function mapFirestoreProperty(id: string, p: Record<string, any>): Property {
+  const primaryImage = resolveImageUrl(p.display_image || p.image || "");
+  const gallery: string[] =
+    Array.isArray(p.gallery) && p.gallery.length > 0
+      ? p.gallery.map((url: string) => resolveImageUrl(url))
+      : [primaryImage];
 
   return {
-    id: String(p.id),
-    title: p.title,
-    description: p.description,
-    price: p.price,
-    location: p.location,
+    id,
+    title: p.title || "",
+    description: p.description || "",
+    price: p.price || "",
+    location: p.location || "",
     tag: p.tag || "",
-    tagFeatured: p.tagFeatured,
-    type: p.type as PropertyType,
+    tagFeatured: Boolean(p.tagFeatured),
+    type: (p.type || "plot") as PropertyType,
     image: primaryImage,
-    gallery: gallery,
+    gallery,
     longDescription: p.longDescription || p.description || "",
-    features: Array.isArray(p.features) && p.features.length > 0
-      ? p.features
-      : ["Verified documentation", "Premium location", "Full Indenture & Title"],
-    specs: Array.isArray(p.specs) && p.specs.length > 0
-      ? p.specs
-      : [
-          { label: "Status", value: p.tag || "Available" },
-          { label: "Type", value: (p.type || "").charAt(0).toUpperCase() + (p.type || "").slice(1) },
-        ],
+    features:
+      Array.isArray(p.features) && p.features.length > 0
+        ? p.features
+        : ["Verified documentation", "Premium location", "Full Indenture & Title"],
+    specs:
+      Array.isArray(p.specs) && p.specs.length > 0
+        ? p.specs
+        : [
+            { label: "Status", value: p.tag || "Available" },
+            {
+              label: "Type",
+              value: (p.type || "").charAt(0).toUpperCase() + (p.type || "").slice(1),
+            },
+          ],
   };
 }
 
 export async function fetchProperties(): Promise<Property[]> {
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000);
-    const res = await fetch(API_URL, { signal: controller.signal });
-    clearTimeout(timeout);
-    if (!res.ok) throw new Error("Failed to fetch properties");
-    const data = await res.json();
-    if (Array.isArray(data) && data.length > 0) {
-      return data.map(mapDjangoProperty);
-    }
-    return defaultProperties;
-  } catch {
+    const snapshot = await getDocs(collection(db, "properties"));
+    if (snapshot.empty) return defaultProperties;
+    return snapshot.docs
+      .map((d) => ({ order: Number(d.data().order ?? 0), property: mapFirestoreProperty(d.id, d.data()) }))
+      .sort((a, b) => a.order - b.order)
+      .map((entry) => entry.property);
+  } catch (error) {
+    console.warn("Firestore unavailable â€” using bundled property data:", error);
     return defaultProperties;
   }
 }
 
 export async function fetchProperty(id: string): Promise<Property | undefined> {
   try {
-    const res = await fetch(`${API_URL}${id}/`);
-    if (res.ok) {
-      const data = await res.json();
-      return mapDjangoProperty(data);
+    const snapshot = await getDoc(doc(db, "properties", id));
+    if (snapshot.exists()) {
+      return mapFirestoreProperty(snapshot.id, snapshot.data());
     }
   } catch (error) {
-    console.warn(`Could not fetch property ${id} from API, checking local data:`, error);
+    console.warn(`Could not fetch property ${id} from Firestore, checking local data:`, error);
   }
   return defaultProperties.find((p) => p.id === id);
 }

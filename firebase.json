@@ -1,0 +1,27 @@
+{
+  "hosting": {
+    "public": "malanga1companyltd-main/dist/client",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "cleanUrls": true,
+    "trailingSlash": false,
+    "rewrites": [
+      { "source": "/admin", "destination": "/admin/index.html" },
+      { "source": "/admin/**", "destination": "/admin/index.html" },
+      { "source": "**", "destination": "/_shell.html" }
+    ],
+    "headers": [
+      {
+        "source": "**/*.@(js|css|woff2|jpg|jpeg|png|webp|svg|mp4)",
+        "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+      }
+    ]
+  },
+  "firestore": {
+    "database": "default",
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "storage": {
+    "rules": "storage.rules"
+  }
+}

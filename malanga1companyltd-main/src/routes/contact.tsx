@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Reveal } from "@/components/Reveal";
 import { MapPin, Phone, Mail, Clock, CheckCircle2, MessageCircle } from "lucide-react";
 import { PHONE_DISPLAY, PHONE_TEL, EMAIL, ADDRESS, whatsappUrl } from "@/lib/contact";
+import { submitContactMessage } from "@/lib/messages";
 import { canonical, DEFAULT_OG_IMAGE, organizationJsonLd, breadcrumbJsonLd } from "@/lib/seo";
 
 export const Route = createFileRoute("/contact")({
@@ -125,19 +126,13 @@ function ContactPage() {
                   onSubmit={async (e) => {
                     e.preventDefault();
                     const formData = new FormData(e.currentTarget);
-                    const baseApi = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
                     try {
-                      const res = await fetch(`${baseApi}/contact/`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                          name: formData.get("name"),
-                          phone: formData.get("phone"),
-                          email: formData.get("email") || "",
-                          message: `[Interest: ${formData.get("interest")}] ${formData.get("message")}`,
-                        }),
+                      await submitContactMessage({
+                        name: String(formData.get("name") || ""),
+                        phone: String(formData.get("phone") || ""),
+                        email: String(formData.get("email") || ""),
+                        message: `[Interest: ${formData.get("interest")}] ${formData.get("message")}`,
                       });
-                      if (!res.ok) throw new Error("Failed to send message");
                       setSent(true);
                     } catch (err) {
                       console.error("Contact submission error:", err);
