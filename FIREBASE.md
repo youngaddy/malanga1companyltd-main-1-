@@ -84,12 +84,12 @@ Both Firebase Auth's authorized-domain list and the Hosting custom-domain
 association include `malanga1company.com`, so the dashboard login works on the
 custom domain too.
 
-`www.malanga1company.com` is registered on the Firebase side and needs this one
-DNS record at Cloudflare (grey cloud / DNS only):
+`www.malanga1company.com` is also live. Its Cloudflare DNS has:
 
-| Type | Name | Target |
-|------|------|--------|
+| Type | Name | Target / Value |
+|------|------|----------------|
 | CNAME | `www` | `malanga1company.web.app` |
+| TXT | `_acme-challenge.www` | ACME token issued by Firebase (rotates on renewal) |
 
 If the domain ever shows **Site Not Found**, the TXT ownership record is the
 usual cause. Add it exactly as above and wait — Firebase polls DNS and can take
