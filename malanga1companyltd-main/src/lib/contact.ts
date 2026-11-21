@@ -10,8 +10,8 @@ export const ADDRESS = [
   "Kumbungu Main Road",
   "Tamale, Ghana",
 ];
-export const TIKTOK_URL = "https://tiktok.com/@malanga1companyltd";
-export const FACEBOOK_URL = "https://facebook.com/malanga1companyltd";
+export const TIKTOK_URL = "https://www.tiktok.com/@hajjmalanga1";
+export const FACEBOOK_URL = "https://web.facebook.com/profile.php?id=61587265145984";
 export const INSTAGRAM_URL = "https://instagram.com/malanga1companyltd";
 
 export function whatsappUrl(message?: string) {

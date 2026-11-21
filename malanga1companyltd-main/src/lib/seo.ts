@@ -1,7 +1,14 @@
 // Central SEO helpers for Malanga 1 Company Limited
-import { COMPANY_NAME, PHONE_TEL, EMAIL, ADDRESS, TIKTOK_URL } from "./contact";
+import {
+  COMPANY_NAME,
+  PHONE_TEL,
+  EMAIL,
+  ADDRESS,
+  TIKTOK_URL,
+  FACEBOOK_URL,
+} from "./contact";
 
-export const SITE_URL = "https://malanga1companyltd.com";
+export const SITE_URL = "https://malanga1company.com";
 export const DEFAULT_OG_IMAGE =
   "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/09399fc2-c058-42c0-8532-e0a13eef2733";
 
@@ -29,7 +36,7 @@ export const organizationJsonLd = {
     addressRegion: "Northern Region",
     addressCountry: "GH",
   },
-  sameAs: [TIKTOK_URL],
+  sameAs: [FACEBOOK_URL, TIKTOK_URL],
 };
 
 export const websiteJsonLd = {
